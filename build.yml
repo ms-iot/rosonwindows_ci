@@ -29,12 +29,14 @@ jobs:
       set PATH=%PATH:C:\Program Files\Git\bin;=%
       set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
       set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
+      set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
       call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
       call "C:\opt\ros\melodic\x64\env.bat" catkin_init_workspace
       call "C:\opt\ros\melodic\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
       -DPYTHON_VERSION=2.7 ^
       -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
-      -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs
+      -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
+      -DCMAKE_VERBOSE_MAKEFILE
     displayName: Build repository
     workingDirectory: '$(Build.StagingDirectory)'
     
@@ -43,13 +45,15 @@ jobs:
       set PATH=%PATH:C:\Program Files\Git\bin;=%
       set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
       set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
+      set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
       call "C:\opt\ros\melodic\x64\setup.bat"
       call "devel_isolated\setup.bat"
       catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
       -DPYTHON_VERSION=2.7 ^
       -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
-      -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs
+      -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
+      -DCMAKE_VERBOSE_MAKEFILE
     env:
       CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
     displayName: Test repository
