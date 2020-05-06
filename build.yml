@@ -29,7 +29,7 @@ jobs:
       set PATH=%PATH:C:\Program Files\Git\bin;=%
       set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
       set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
       call "C:\opt\ros\melodic\x64\env.bat" catkin_init_workspace
       call "C:\opt\ros\melodic\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
       -DPYTHON_VERSION=2.7 ^
