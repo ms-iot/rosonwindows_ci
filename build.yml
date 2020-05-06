@@ -36,7 +36,7 @@ jobs:
       -DPYTHON_VERSION=2.7 ^
       -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
       -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
-      -DCMAKE_VERBOSE_MAKEFILE
+      -DCMAKE_VERBOSE_MAKEFILE=ON
     displayName: Build repository
     workingDirectory: '$(Build.StagingDirectory)'
     
@@ -53,7 +53,7 @@ jobs:
       -DPYTHON_VERSION=2.7 ^
       -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
       -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
-      -DCMAKE_VERBOSE_MAKEFILE
+      -DCMAKE_VERBOSE_MAKEFILE=ON
     env:
       CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
     displayName: Test repository
