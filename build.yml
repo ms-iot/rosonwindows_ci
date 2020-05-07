@@ -10,6 +10,8 @@ jobs:
     vmImage: 'windows-2019'
   timeoutInMinutes: 240
   steps:
+  - checkout:
+    submodules: recursive
   - task: CopyFiles@2
     inputs:
       targetFolder: '$(Build.StagingDirectory)\src\_'
