@@ -10,7 +10,7 @@ jobs:
     vmImage: 'windows-2019'
   timeoutInMinutes: 240
   steps:
-  - checkout:
+  - checkout: self
     submodules: recursive
   - task: CopyFiles@2
     inputs:
