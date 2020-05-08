@@ -89,9 +89,16 @@ jobs:
       searchFolder: '$(Build.StagingDirectory)\build_isolated'
     condition: always()
     
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: '$(Build.StagingDirectory)\install_isolated'
+      includeRootFolder: false
+      archiveFile: '$(Build.Repository.LocalPath)\package\tools\drop.zip'
+    displayName: 'Archive Package binaries'
+  
   - script: |
       call "$(Build.Repository.LocalPath)\package\build.bat"
     displayName: Build Chocolatey Package
     timeoutInMinutes: ${{ parameters.custom_test_timeout }}
     continueOnError: 'true'
-    workingDirectory: '$(Build.Repository.LocalPath)'
+    workingDirectory: '$(Build.Repository.LocalPath)\package'
