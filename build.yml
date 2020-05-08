@@ -35,7 +35,7 @@ jobs:
       set PATH=%PATH:C:\Strawberry\c\bin;=%
       call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
       call "C:\opt\ros\melodic\x64\env.bat" catkin_init_workspace
-      call "C:\opt\ros\melodic\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
+      call "C:\opt\ros\melodic\x64\env.bat" catkin_make_isolated --install --source src ^
       -DPYTHON_VERSION=2.7 ^
       -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
       -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
@@ -53,7 +53,7 @@ jobs:
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
       call "C:\opt\ros\melodic\x64\setup.bat"
       call "devel_isolated\setup.bat"
-      catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
+      catkin_make_isolated --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
       -DPYTHON_VERSION=2.7 ^
       -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
       -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
