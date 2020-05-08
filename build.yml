@@ -94,4 +94,4 @@ jobs:
     displayName: Build Chocolatey Package
     timeoutInMinutes: ${{ parameters.custom_test_timeout }}
     continueOnError: 'true'
-    workingDirectory: '$(Build.StagingDirectory)'
+    workingDirectory: '$(Build.Repository.LocalPath)'
