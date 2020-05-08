@@ -90,7 +90,7 @@ jobs:
     condition: always()
     
   - script: |
-      call "${{ Build.Repository.LocalPath }}\package\build.bat"
+      call "$(Build.Repository.LocalPath)\package\build.bat"
     displayName: Build Chocolatey Package
     timeoutInMinutes: ${{ parameters.custom_test_timeout }}
     continueOnError: 'true'
