@@ -88,3 +88,10 @@ jobs:
       testResultsFiles: '**\gtest-*.xml'
       searchFolder: '$(Build.StagingDirectory)\build_isolated'
     condition: always()
+    
+  - script: |
+      call ${{ Build.Repository.LocalPath }}\package\build.bat
+    displayName: Build Chocolatey Package
+    timeoutInMinutes: ${{ parameters.custom_test_timeout }}
+    continueOnError: 'true'
+    workingDirectory: '$(Build.StagingDirectory)'
