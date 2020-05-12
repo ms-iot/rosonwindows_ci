@@ -102,3 +102,8 @@ jobs:
     timeoutInMinutes: ${{ parameters.custom_test_timeout }}
     continueOnError: 'true'
     workingDirectory: '$(Build.Repository.LocalPath)\package'
+    
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: $(Build.Repository.LocalPath)\package\output
+      artifactName: choco_artifact.nupkg
