@@ -1,8 +1,15 @@
 parameters:
-  ros_metapackage: 'ros-melodic-desktop'
-  custom_test_target: 'run_tests'
-  custom_test_timeout: 15
-  pre_build: []
+- name: ros_metapackage
+  type: string
+  default: 'ros-melodic-desktop'
+- name: custom_test_target
+  type: string
+  default: 'run_tests'
+- name: custom_test_timeout
+  type: number
+  default: 15
+- name: pre_build
+  type: stepList
 - name: build_chocolatey_pkg
   type: boolean
   default: false
