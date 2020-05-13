@@ -3,6 +3,9 @@ parameters:
   custom_test_target: 'run_tests'
   custom_test_timeout: 15
   pre_build: []
+- name: build_chocolatey_pkg
+  type: boolean
+  default: false
 
 jobs:
 - job: Build
@@ -102,8 +105,10 @@ jobs:
     timeoutInMinutes: ${{ parameters.custom_test_timeout }}
     continueOnError: 'true'
     workingDirectory: '$(Build.Repository.LocalPath)\package'
+    condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
     
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: $(Build.Repository.LocalPath)\package\output
-      artifactName: choco_artifact.nupkg
+      artifactName: choco_artifact
+    condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
