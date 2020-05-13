@@ -10,6 +10,7 @@ parameters:
   default: 15
 - name: pre_build
   type: stepList
+  default: []
 - name: build_chocolatey_pkg
   type: boolean
   default: false
