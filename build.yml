@@ -1,15 +1,28 @@
 parameters:
-  ros_metapackage: 'ros-melodic-desktop'
-  custom_test_target: 'run_tests'
-  custom_test_timeout: 15
-  pre_build: []
+- name: ros_metapackage
+  type: string
+  default: 'ros-melodic-desktop'
+- name: custom_test_target
+  type: string
+  default: 'run_tests'
+- name: custom_test_timeout
+  type: number
+  default: 15
+- name: pre_build
+  type: stepList
+  default: []
+- name: build_chocolatey_pkg
+  type: boolean
+  default: false
 
 jobs:
 - job: Build
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
   timeoutInMinutes: 240
   steps:
+  - checkout: self
+    submodules: recursive
   - task: CopyFiles@2
     inputs:
       targetFolder: '$(Build.StagingDirectory)\src\_'
@@ -29,9 +42,15 @@ jobs:
       set PATH=%PATH:C:\Program Files\Git\bin;=%
       set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
       set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
+      set PATH=%PATH:C:\Strawberry\c\bin;=%
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
       call "C:\opt\ros\melodic\x64\env.bat" catkin_init_workspace
-      call "C:\opt\ros\melodic\x64\env.bat" catkin_make_isolated --use-ninja --install --source src
+      call "C:\opt\ros\melodic\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
+      -DPYTHON_VERSION=2.7 ^
+      -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
+      -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
+      -DCMAKE_VERBOSE_MAKEFILE=ON
     displayName: Build repository
     workingDirectory: '$(Build.StagingDirectory)'
     
@@ -40,10 +59,16 @@ jobs:
       set PATH=%PATH:C:\Program Files\Git\bin;=%
       set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
       set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
+      set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
+      set PATH=%PATH:C:\Strawberry\c\bin;=%
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
       call "C:\opt\ros\melodic\x64\setup.bat"
       call "devel_isolated\setup.bat"
-      catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET%
+      catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
+      -DPYTHON_VERSION=2.7 ^
+      -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
+      -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
+      -DCMAKE_VERBOSE_MAKEFILE=ON
     env:
       CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
     displayName: Test repository
@@ -74,3 +99,24 @@ jobs:
       testResultsFiles: '**\gtest-*.xml'
       searchFolder: '$(Build.StagingDirectory)\build_isolated'
     condition: always()
+    
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: '$(Build.StagingDirectory)\install_isolated'
+      includeRootFolder: false
+      archiveFile: '$(Build.Repository.LocalPath)\package\tools\drop.zip'
+    displayName: 'Archive Package binaries'
+  
+  - script: |
+      call "$(Build.Repository.LocalPath)\package\build.bat"
+    displayName: Build Chocolatey Package
+    timeoutInMinutes: ${{ parameters.custom_test_timeout }}
+    continueOnError: 'true'
+    workingDirectory: '$(Build.Repository.LocalPath)\package'
+    condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
+    
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: $(Build.Repository.LocalPath)\package\output
+      artifactName: choco_artifact
+    condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
