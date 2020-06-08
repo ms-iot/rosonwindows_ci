@@ -65,6 +65,7 @@ jobs:
       call "C:\opt\ros\melodic\x64\setup.bat"
       call "devel_isolated\setup.bat"
       catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
+      --cmake-args ^
       -DPYTHON_VERSION=2.7 ^
       -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
       -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
