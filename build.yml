@@ -139,7 +139,7 @@ jobs:
       submodules: recursive
     - task: CopyFiles@2
       inputs:
-        targetFolder: '$(Build.StagingDirectory)\src\_'
+        targetFolder: '$(Build.StagingDirectory)/src/_'
     - script: |
         source /opt/ros/melodic/setup.sh
         catkin_make_isolated --install --source src
