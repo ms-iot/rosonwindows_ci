@@ -17,7 +17,7 @@ parameters:
 - name: pre_build
   type: stepList
   default: []
-- name: build_chocolatey_pkg
+- name: build_chocolatey_pkg # Only supported for Windows build.
   type: boolean
   default: false
 - name: platforms
@@ -153,6 +153,8 @@ jobs:
     - task: CopyFiles@2
       inputs:
         targetFolder: '$(Build.StagingDirectory)/src/_'
+
+    - ${{ parameters.pre_build }}
 
     - script: |
         source /opt/ros/$CI_ROSDISTRO/setup.sh
