@@ -1,5 +1,5 @@
 parameters:
-- name: ros_metapackage
+- name: ros_metapackage # Deprecated
   type: string
   default: 'ros-melodic-desktop'
 - name: rosdistro
