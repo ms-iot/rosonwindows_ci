@@ -10,7 +10,7 @@ schedules:
         - master
 
 jobs:
-- template: ../build.yml@self  # Template reference
+- template: /build.yml@self  # Template reference
   parameters:
     rosdistro: melodic
     metapackage: desktop
