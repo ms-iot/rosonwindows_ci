@@ -5,6 +5,11 @@ resources:
       name: ms-iot/rosonwindows_ci
       endpoint: ms-iot
 
+pr:
+  branches:
+    include:
+      - master
+
 jobs:
 - template: build.yml@templates  # Template reference
   parameters:
