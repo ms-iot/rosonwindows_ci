@@ -23,7 +23,6 @@ parameters:
 - name: platforms
   type: object
   default:
-    - linux
     - windows
 
 jobs:

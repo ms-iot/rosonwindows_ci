@@ -2,9 +2,7 @@ resources:
   repositories:
     - repository: templates
       type: github
-      name: seanyen/rosonwindows_ci
-      ref: 'refs/heads/seanyen/linux'
-      #ref: 'refs/tags/v0.1.0'
+      name: ms-iot/rosonwindows_ci
       endpoint: ms-iot
 
 pr:
@@ -21,5 +19,8 @@ schedules:
 jobs:
 - template: build.yml@templates  # Template reference
   parameters:
-    rosdistro: 'melodic'
-    metapackage: 'desktop'
+    rosdistro: melodic
+    metapackage: desktop
+    platforms:
+      - linux
+      - windows
