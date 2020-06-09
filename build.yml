@@ -14,12 +14,17 @@ parameters:
 - name: build_chocolatey_pkg
   type: boolean
   default: false
+- name: platforms
+  type: object
+  default:
+    - windows
 
 jobs:
-- job: Build
+- job: Windows Build
   pool:
     vmImage: 'windows-2019'
   timeoutInMinutes: 240
+  condition: containsValue(${{ parameters.platforms }}, 'windows')
   steps:
   - checkout: self
     submodules: recursive
@@ -101,14 +106,14 @@ jobs:
       testResultsFiles: '**\gtest-*.xml'
       searchFolder: '$(Build.StagingDirectory)\build_isolated'
     condition: always()
-    
+
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: '$(Build.StagingDirectory)\install_isolated'
       includeRootFolder: false
       archiveFile: '$(Build.Repository.LocalPath)\package\tools\drop.zip'
     displayName: 'Archive Package binaries'
-  
+
   - script: |
       call "$(Build.Repository.LocalPath)\package\build.bat"
     displayName: Build Chocolatey Package
@@ -116,7 +121,7 @@ jobs:
     continueOnError: 'true'
     workingDirectory: '$(Build.Repository.LocalPath)\package'
     condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
-    
+
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: $(Build.Repository.LocalPath)\package\output
