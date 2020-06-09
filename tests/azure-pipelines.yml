@@ -3,6 +3,7 @@ resources:
     - repository: templates
       type: github
       name: seanyen/rosonwindows_ci
+      ref: 'refs/heads/seanyen/linux'
       endpoint: ms-iot
 
 pr:
