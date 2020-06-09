@@ -2,6 +2,12 @@ parameters:
 - name: ros_metapackage
   type: string
   default: 'ros-melodic-desktop'
+- name: rosdistro
+  type: string
+  default: 'melodic'
+- name: metapackage
+  type: string
+  default: 'desktop'
 - name: custom_test_target
   type: string
   default: 'run_tests'
@@ -25,6 +31,9 @@ jobs:
     pool:
       vmImage: 'windows-2019'
     timeoutInMinutes: 240
+    variables:
+      CI_ROSDISTRO: '${{ parameters.rosdistro }}'
+      CI_METAPACKAGE: '${{ parameters.metapackage }}'
     steps:
     - checkout: self
       submodules: recursive
@@ -35,7 +44,7 @@ jobs:
     - ${{ parameters.pre_build }}
     - script: |
         choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
-        choco upgrade %ROS_METAPACKAGE% -y
+        choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
         call "C:\opt\ros\melodic\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
       env:
         ROS_METAPACKAGE: ${{ parameters.ros_metapackage }}
@@ -132,8 +141,11 @@ jobs:
   - job: Linux_Build
     pool:
       vmImage: 'ubuntu-18.04'
-    container: osrf/ros:melodic-desktop
+    container: 'osrf/ros:${{ parameters.rosdistro }}-${{ parameters.metapackage }}'
     timeoutInMinutes: 240
+    variables:
+      CI_ROSDISTRO: '${{ parameters.rosdistro }}'
+      CI_METAPACKAGE: '${{ parameters.metapackage }}'
     steps:
     - checkout: self
       submodules: recursive
@@ -143,12 +155,13 @@ jobs:
         targetFolder: '$(Build.StagingDirectory)/src/_'
 
     - script: |
-        source /opt/ros/melodic/setup.sh
+        source /opt/ros/$CI_ROSDISTRO/setup.sh
         catkin_make_isolated --install --source src
       displayName: Build repository
       workingDirectory: '$(Build.StagingDirectory)'
 
     - script: |
+        source /opt/ros/$CI_ROSDISTRO/setup.sh
         catkin_make_isolated --use-ninja --install --source src --catkin-make-args $CUSTOM_TEST_TARGET
       env:
         CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
