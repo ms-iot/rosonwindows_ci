@@ -4,7 +4,7 @@ resources:
       type: github
       name: seanyen/rosonwindows_ci
       #ref: 'refs/heads/seanyen/linux'
-      ref: 'refs/tags/v0.1.0'
+      #ref: 'refs/tags/v0.1.0'
       endpoint: ms-iot
 
 pr:
@@ -15,4 +15,5 @@ pr:
 jobs:
 - template: build.yml@templates  # Template reference
   parameters:
-    ros_metapackage: 'ros-melodic-ros_core'
+    rosdistro: 'melodic'
+    metapackage: 'desktop'
