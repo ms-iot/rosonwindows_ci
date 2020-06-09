@@ -135,4 +135,13 @@ jobs:
     container: osrf/ros:melodic-desktop
     timeoutInMinutes: 240
     steps:
-    - script: printenv
+    - checkout: self
+      submodules: recursive
+    - task: CopyFiles@2
+      inputs:
+        targetFolder: '$(Build.StagingDirectory)\src\_'
+    - script: |
+        source /opt/ros/melodic/setup.sh
+        catkin_make_isolated --install --source src
+      displayName: Build repository
+      workingDirectory: '$(Build.StagingDirectory)'
