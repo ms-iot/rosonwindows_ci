@@ -17,7 +17,7 @@ parameters:
 - name: platforms
   type: object
   default:
-    - windows
+    - linux
 
 jobs:
 - job: Windows Build
@@ -127,3 +127,12 @@ jobs:
       targetPath: $(Build.Repository.LocalPath)\package\output
       artifactName: choco_artifact
     condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
+
+- job: Linux Build
+  pool:
+    vmImage: 'ubuntu-18.04'
+  container: osrf/ros:melodic-desktop
+  timeoutInMinutes: 240
+  condition: containsValue(${{ parameters.platforms }}, 'linux')
+  steps:
+  - script: printenv
