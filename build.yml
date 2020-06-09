@@ -137,11 +137,46 @@ jobs:
     steps:
     - checkout: self
       submodules: recursive
+
     - task: CopyFiles@2
       inputs:
         targetFolder: '$(Build.StagingDirectory)/src/_'
+
     - script: |
         source /opt/ros/melodic/setup.sh
         catkin_make_isolated --install --source src
       displayName: Build repository
       workingDirectory: '$(Build.StagingDirectory)'
+
+    - script: |
+        catkin_make_isolated --use-ninja --install --source src --catkin-make-args $CUSTOM_TEST_TARGET
+      env:
+        CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
+      displayName: Test repository
+      timeoutInMinutes: ${{ parameters.custom_test_timeout }}
+      continueOnError: 'true'
+      workingDirectory: '$(Build.StagingDirectory)'
+
+    - task: PublishTestResults@2
+      displayName: Publish nosetests results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**/nosetests-*.xml'
+        searchFolder: '$(Build.StagingDirectory)/build_isolated'
+      condition: always()
+
+    - task: PublishTestResults@2
+      displayName: Publish rostest results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**/rostest-*.xml'
+        searchFolder: '$(Build.StagingDirectory)/build_isolated'
+      condition: always()
+
+    - task: PublishTestResults@2
+      displayName: Publish gtest results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**/gtest-*.xml'
+        searchFolder: '$(Build.StagingDirectory)/build_isolated'
+      condition: always()
