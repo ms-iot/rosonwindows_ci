@@ -24,6 +24,7 @@ parameters:
   type: object
   default:
     - linux
+    - windows
 
 jobs:
 - ${{ if containsValue(parameters.platforms, 'windows') }}:
