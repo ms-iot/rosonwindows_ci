@@ -24,7 +24,7 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   timeoutInMinutes: 240
-  condition: contains(variables.platforms, 'windows')
+  condition: containsValue(variables.platforms, 'windows')
   steps:
   - checkout: self
     submodules: recursive
@@ -133,6 +133,6 @@ jobs:
     vmImage: 'ubuntu-18.04'
   container: osrf/ros:melodic-desktop
   timeoutInMinutes: 240
-  condition: contains(variables.platforms, 'linux')
+  condition: containsValue(variables.platforms, 'linux')
   steps:
   - script: printenv
