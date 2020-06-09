@@ -20,7 +20,7 @@ parameters:
     - linux
 
 jobs:
-- job: Windows Build
+- job: Windows_Build
   pool:
     vmImage: 'windows-2019'
   timeoutInMinutes: 240
@@ -128,7 +128,7 @@ jobs:
       artifactName: choco_artifact
     condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
 
-- job: Linux Build
+- job: Linux_Build
   pool:
     vmImage: 'ubuntu-18.04'
   container: osrf/ros:melodic-desktop
