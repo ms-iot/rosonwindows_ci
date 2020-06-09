@@ -45,7 +45,7 @@ jobs:
     - script: |
         choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
         choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
-        call "C:\opt\ros\melodic\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
       env:
         ROS_METAPACKAGE: ${{ parameters.ros_metapackage }}
       displayName: Install prerequisites
@@ -59,8 +59,8 @@ jobs:
         set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
         set PATH=%PATH:C:\Strawberry\c\bin;=%
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        call "C:\opt\ros\melodic\x64\env.bat" catkin_init_workspace
-        call "C:\opt\ros\melodic\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" catkin_init_workspace
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
         --cmake-args ^
         -DPYTHON_VERSION=2.7 ^
         -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
@@ -77,7 +77,7 @@ jobs:
         set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
         set PATH=%PATH:C:\Strawberry\c\bin;=%
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        call "C:\opt\ros\melodic\x64\setup.bat"
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\setup.bat"
         call "devel_isolated\setup.bat"
         catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
         --cmake-args ^
@@ -162,7 +162,7 @@ jobs:
 
     - script: |
         source /opt/ros/$CI_ROSDISTRO/setup.sh
-        catkin_make_isolated --use-ninja --install --source src --catkin-make-args $CUSTOM_TEST_TARGET
+        catkin_make_isolated --install --source src --catkin-make-args $CUSTOM_TEST_TARGET
       env:
         CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
       displayName: Test repository
