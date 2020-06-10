@@ -156,6 +156,7 @@ jobs:
     
     - script: |
         source /opt/ros/$CI_ROSDISTRO/setup.sh
+        rosdep update
         rosdep install --from-paths src --ignore-src -r -y
       displayName: Install prerequisites
       workingDirectory: '$(Build.StagingDirectory)'
