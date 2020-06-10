@@ -1,4 +1,4 @@
-# Continuous Integation with Azure DevOps
+# Continuous Integration with Azure DevOps
 
 Visit [here](https://ms-iot.github.io/ROSOnWindows/GettingStarted/AzureSetupCI.html) for more usage and examples.
 
