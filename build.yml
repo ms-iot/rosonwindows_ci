@@ -156,6 +156,7 @@ jobs:
     
     - script: |
         source /opt/ros/$CI_ROSDISTRO/setup.sh
+        sudo apt update
         rosdep update
         rosdep install --from-paths src --ignore-src -r -y
       displayName: Install prerequisites
