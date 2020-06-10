@@ -1,7 +1,13 @@
 parameters:
-- name: ros_metapackage
+- name: ros_metapackage # Deprecated
   type: string
   default: 'ros-melodic-desktop'
+- name: rosdistro
+  type: string
+  default: 'melodic'
+- name: metapackage
+  type: string
+  default: 'desktop'
 - name: custom_test_target
   type: string
   default: 'run_tests'
@@ -11,114 +17,179 @@ parameters:
 - name: pre_build
   type: stepList
   default: []
-- name: build_chocolatey_pkg
+- name: build_chocolatey_pkg # Only supported for Windows build.
   type: boolean
   default: false
+- name: platforms
+  type: object
+  default:
+    - windows
 
 jobs:
-- job: Build
-  pool:
-    vmImage: 'windows-2019'
-  timeoutInMinutes: 240
-  steps:
-  - checkout: self
-    submodules: recursive
-  - task: CopyFiles@2
-    inputs:
-      targetFolder: '$(Build.StagingDirectory)\src\_'
+- ${{ if containsValue(parameters.platforms, 'windows') }}:
+  - job: Windows_Build
+    pool:
+      vmImage: 'windows-2019'
+    timeoutInMinutes: 240
+    variables:
+      CI_ROSDISTRO: '${{ parameters.rosdistro }}'
+      CI_METAPACKAGE: '${{ parameters.metapackage }}'
+    steps:
+    - checkout: self
+      submodules: recursive
+    - task: CopyFiles@2
+      inputs:
+        targetFolder: '$(Build.StagingDirectory)\src\_'
 
-  - ${{ parameters.pre_build }}
-  - script: |
-      choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
-      choco upgrade %ROS_METAPACKAGE% -y
-      call "C:\opt\ros\melodic\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
-    env:
-      ROS_METAPACKAGE: ${{ parameters.ros_metapackage }}
-    displayName: Install prerequisites
-    workingDirectory: $(Build.StagingDirectory)
+    - ${{ parameters.pre_build }}
+    - script: |
+        choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
+        choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
+      displayName: Install prerequisites
+      workingDirectory: $(Build.StagingDirectory)
 
-  - script: |
-      set PATH=%PATH:C:\tools\mingw64\bin;=%
-      set PATH=%PATH:C:\Program Files\Git\bin;=%
-      set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-      set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
-      set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
-      set PATH=%PATH:C:\Strawberry\c\bin;=%
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      call "C:\opt\ros\melodic\x64\env.bat" catkin_init_workspace
-      call "C:\opt\ros\melodic\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
-      --cmake-args ^
-      -DPYTHON_VERSION=2.7 ^
-      -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
-      -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
-      -DCMAKE_VERBOSE_MAKEFILE=ON
-    displayName: Build repository
-    workingDirectory: '$(Build.StagingDirectory)'
-    
-  - script: |
-      set PATH=%PATH:C:\tools\mingw64\bin;=%
-      set PATH=%PATH:C:\Program Files\Git\bin;=%
-      set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
-      set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
-      set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
-      set PATH=%PATH:C:\Strawberry\c\bin;=%
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      call "C:\opt\ros\melodic\x64\setup.bat"
-      call "devel_isolated\setup.bat"
-      catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
-      --cmake-args ^
-      -DPYTHON_VERSION=2.7 ^
-      -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
-      -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
-      -DCMAKE_VERBOSE_MAKEFILE=ON
-    env:
-      CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
-    displayName: Test repository
-    timeoutInMinutes: ${{ parameters.custom_test_timeout }}
-    continueOnError: 'true'
-    workingDirectory: '$(Build.StagingDirectory)'
+    - script: |
+        set PATH=%PATH:C:\tools\mingw64\bin;=%
+        set PATH=%PATH:C:\Program Files\Git\bin;=%
+        set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+        set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
+        set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
+        set PATH=%PATH:C:\Strawberry\c\bin;=%
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" catkin_init_workspace
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
+        --cmake-args ^
+        -DPYTHON_VERSION=2.7 ^
+        -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
+        -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
+        -DCMAKE_VERBOSE_MAKEFILE=ON
+      displayName: Build repository
+      workingDirectory: '$(Build.StagingDirectory)'
+      
+    - script: |
+        set PATH=%PATH:C:\tools\mingw64\bin;=%
+        set PATH=%PATH:C:\Program Files\Git\bin;=%
+        set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+        set PATH=%PATH:C:\Program Files\Git\mingw64\bin;=%
+        set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
+        set PATH=%PATH:C:\Strawberry\c\bin;=%
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\setup.bat"
+        call "devel_isolated\setup.bat"
+        catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
+        --cmake-args ^
+        -DPYTHON_VERSION=2.7 ^
+        -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
+        -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
+        -DCMAKE_VERBOSE_MAKEFILE=ON
+      env:
+        CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
+      displayName: Test repository
+      timeoutInMinutes: ${{ parameters.custom_test_timeout }}
+      continueOnError: 'true'
+      workingDirectory: '$(Build.StagingDirectory)'
 
-  - task: PublishTestResults@2
-    displayName: Publish nosetests results
-    inputs:
-      testRunner: 'jUnit'
-      testResultsFiles: '**\nosetests-*.xml'
-      searchFolder: '$(Build.StagingDirectory)\build_isolated'
-    condition: always()
+    - task: PublishTestResults@2
+      displayName: Publish nosetests results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**\nosetests-*.xml'
+        searchFolder: '$(Build.StagingDirectory)\build_isolated'
+      condition: always()
 
-  - task: PublishTestResults@2
-    displayName: Publish rostest results
-    inputs:
-      testRunner: 'jUnit'
-      testResultsFiles: '**\rostest-*.xml'
-      searchFolder: '$(Build.StagingDirectory)\build_isolated'
-    condition: always()
+    - task: PublishTestResults@2
+      displayName: Publish rostest results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**\rostest-*.xml'
+        searchFolder: '$(Build.StagingDirectory)\build_isolated'
+      condition: always()
 
-  - task: PublishTestResults@2
-    displayName: Publish gtest results
-    inputs:
-      testRunner: 'jUnit'
-      testResultsFiles: '**\gtest-*.xml'
-      searchFolder: '$(Build.StagingDirectory)\build_isolated'
-    condition: always()
-    
-  - task: ArchiveFiles@2
-    inputs:
-      rootFolderOrFile: '$(Build.StagingDirectory)\install_isolated'
-      includeRootFolder: false
-      archiveFile: '$(Build.Repository.LocalPath)\package\tools\drop.zip'
-    displayName: 'Archive Package binaries'
-  
-  - script: |
-      call "$(Build.Repository.LocalPath)\package\build.bat"
-    displayName: Build Chocolatey Package
-    timeoutInMinutes: ${{ parameters.custom_test_timeout }}
-    continueOnError: 'true'
-    workingDirectory: '$(Build.Repository.LocalPath)\package'
-    condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
-    
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: $(Build.Repository.LocalPath)\package\output
-      artifactName: choco_artifact
-    condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
+    - task: PublishTestResults@2
+      displayName: Publish gtest results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**\gtest-*.xml'
+        searchFolder: '$(Build.StagingDirectory)\build_isolated'
+      condition: always()
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(Build.StagingDirectory)\install_isolated'
+        includeRootFolder: false
+        archiveFile: '$(Build.Repository.LocalPath)\package\tools\drop.zip'
+      displayName: 'Archive Package binaries'
+
+    - script: |
+        call "$(Build.Repository.LocalPath)\package\build.bat"
+      displayName: Build Chocolatey Package
+      timeoutInMinutes: ${{ parameters.custom_test_timeout }}
+      continueOnError: 'true'
+      workingDirectory: '$(Build.Repository.LocalPath)\package'
+      condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: $(Build.Repository.LocalPath)\package\output
+        artifactName: choco_artifact
+      condition: and(succeeded(), eq('${{ parameters.build_chocolatey_pkg }}', true))
+
+- ${{ if containsValue(parameters.platforms, 'linux') }}:
+  - job: Linux_Build
+    pool:
+      vmImage: 'ubuntu-18.04'
+    container: 'osrf/ros:${{ parameters.rosdistro }}-${{ parameters.metapackage }}'
+    timeoutInMinutes: 240
+    variables:
+      CI_ROSDISTRO: '${{ parameters.rosdistro }}'
+      CI_METAPACKAGE: '${{ parameters.metapackage }}'
+    steps:
+    - checkout: self
+      submodules: recursive
+
+    - task: CopyFiles@2
+      inputs:
+        targetFolder: '$(Build.StagingDirectory)/src/_'
+
+    - ${{ parameters.pre_build }}
+
+    - script: |
+        source /opt/ros/$CI_ROSDISTRO/setup.sh
+        catkin_make_isolated --install --source src
+      displayName: Build repository
+      workingDirectory: '$(Build.StagingDirectory)'
+
+    - script: |
+        source /opt/ros/$CI_ROSDISTRO/setup.sh
+        catkin_make_isolated --install --source src --catkin-make-args $CUSTOM_TEST_TARGET
+      env:
+        CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
+      displayName: Test repository
+      timeoutInMinutes: ${{ parameters.custom_test_timeout }}
+      continueOnError: 'true'
+      workingDirectory: '$(Build.StagingDirectory)'
+
+    - task: PublishTestResults@2
+      displayName: Publish nosetests results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**/nosetests-*.xml'
+        searchFolder: '$(Build.StagingDirectory)/build_isolated'
+      condition: always()
+
+    - task: PublishTestResults@2
+      displayName: Publish rostest results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**/rostest-*.xml'
+        searchFolder: '$(Build.StagingDirectory)/build_isolated'
+      condition: always()
+
+    - task: PublishTestResults@2
+      displayName: Publish gtest results
+      inputs:
+        testRunner: 'jUnit'
+        testResultsFiles: '**/gtest-*.xml'
+        searchFolder: '$(Build.StagingDirectory)/build_isolated'
+      condition: always()

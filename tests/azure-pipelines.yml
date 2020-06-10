@@ -1,16 +1,19 @@
-resources:
-  repositories:
-    - repository: templates
-      type: github
-      name: ms-iot/rosonwindows_ci
-      endpoint: ms-iot
-
 pr:
   branches:
     include:
       - master
 
+schedules:
+  - cron: "0 0 * * *" # Daily midnight build
+    branches:
+      include:
+        - master
+
 jobs:
-- template: build.yml@templates  # Template reference
+- template: /build.yml@self  # Template reference
   parameters:
-    ros_metapackage: 'ros-melodic-ros_core'
+    rosdistro: melodic
+    metapackage: desktop
+    platforms:
+      - linux
+      - windows
