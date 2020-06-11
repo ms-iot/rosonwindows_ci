@@ -1,5 +1,5 @@
 parameters:
-- name: ros_metapackage # Deprecated
+- name: ros_metapackage  # Deprecated
   type: string
   default: 'ros-melodic-desktop'
 - name: rosdistro
@@ -14,10 +14,10 @@ parameters:
 - name: custom_test_timeout
   type: number
   default: 15
-- name: pre_build
+- name: pre_build  # Hook to run immediately before catkin_make.
   type: stepList
   default: []
-- name: build_chocolatey_pkg # Only supported for Windows build.
+- name: build_chocolatey_pkg  # Only supported for Windows build.
   type: boolean
   default: false
 - name: platforms
@@ -41,13 +41,14 @@ jobs:
       inputs:
         targetFolder: '$(Build.StagingDirectory)\src\_'
 
-    - ${{ parameters.pre_build }}
     - script: |
         choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
         choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
         call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
       displayName: Install prerequisites
       workingDirectory: $(Build.StagingDirectory)
+
+    - ${{ parameters.pre_build }}
 
     - script: |
         set PATH=%PATH:C:\tools\mingw64\bin;=%
@@ -152,8 +153,6 @@ jobs:
       inputs:
         targetFolder: '$(Build.StagingDirectory)/src/_'
 
-    - ${{ parameters.pre_build }}
-    
     - script: |
         source /opt/ros/$CI_ROSDISTRO/setup.sh
         sudo apt update
@@ -161,6 +160,8 @@ jobs:
         rosdep install --from-paths src --ignore-src -r -y
       displayName: Install prerequisites
       workingDirectory: '$(Build.StagingDirectory)'
+
+    - ${{ parameters.pre_build }}
 
     - script: |
         source /opt/ros/$CI_ROSDISTRO/setup.sh

@@ -16,4 +16,9 @@ jobs:
     metapackage: desktop
     platforms:
       - linux
+- template: /build.yml@self  # Template reference
+  parameters:
+    rosdistro: melodic
+    metapackage: ros_core
+    platforms:
       - windows
