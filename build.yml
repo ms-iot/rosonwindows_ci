@@ -1,5 +1,5 @@
 parameters:
-- name: ros_metapackage # Deprecated
+- name: ros_metapackage  # Deprecated
   type: string
   default: 'ros-melodic-desktop'
 - name: rosdistro
@@ -14,10 +14,10 @@ parameters:
 - name: custom_test_timeout
   type: number
   default: 15
-- name: pre_build
+- name: pre_build  # Hook to run immediately before catkin_make.
   type: stepList
   default: []
-- name: build_chocolatey_pkg # Only supported for Windows build.
+- name: build_chocolatey_pkg  # Only supported for Windows build.
   type: boolean
   default: false
 - name: platforms
