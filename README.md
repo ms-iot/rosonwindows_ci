@@ -51,7 +51,7 @@ Under `template`, there are some parameters to customize your CI build:
 
 * `rosdistro` and `metapackage`: You can use `rosdistro` for what ROS distro and `metapackage` for what the composition to check out for your CI build. In this example, it specifies to use `melodic` ROS distro and check out the ROS packages up to `desktop`.
 
-* `custom_version`: You can use this to specify what's the version of the metapackage to checkout. This is currently supported only for Windows builds.
+* `custom_version`: You can use this to specify what's the metapackage version to checkout. This is currently supported only for Windows builds.
 
 * `custom_test_target`: For projects which do not have  `run_tests` as default test target, it can be set to a customized test target.
 
