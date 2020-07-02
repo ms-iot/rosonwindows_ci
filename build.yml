@@ -44,7 +44,7 @@ jobs:
       inputs:
         targetFolder: '$(Build.StagingDirectory)\src\_'
 
-    - ${{ if containsValue(parameters.custom_version, 'latest') }}:
+    - ${{ if eq(parameters.custom_version, 'latest') }}:
       - script: |
           choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
           choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
@@ -52,7 +52,7 @@ jobs:
         displayName: Install prerequisites
         workingDirectory: $(Build.StagingDirectory)
 
-    - ${{ if not(containsValue(parameters.custom_version, 'latest')) }}:
+    - ${{ if not(eq(parameters.custom_version, 'latest')) }}:
       - script: |
           choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
           choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% --version=%CUSTOM_VERSION% -y
