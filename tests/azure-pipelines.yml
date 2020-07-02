@@ -20,5 +20,6 @@ jobs:
   parameters:
     rosdistro: melodic
     metapackage: ros_core
+    custom_version: '20200501.1.0'
     platforms:
       - windows

@@ -34,6 +34,7 @@ jobs:
   parameters:
     rosdistro: melodic
     metapackage: desktop
+    custom_version: '20200501.1.0' # Optional; default is blank.
     custom_test_target: 'run_tests'
     platforms:
       - linux

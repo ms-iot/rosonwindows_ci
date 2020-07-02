@@ -8,6 +8,9 @@ parameters:
 - name: metapackage
   type: string
   default: 'desktop'
+- name: custom_version
+  type: string
+  default: 'latest'
 - name: custom_test_target
   type: string
   default: 'run_tests'
@@ -41,12 +44,23 @@ jobs:
       inputs:
         targetFolder: '$(Build.StagingDirectory)\src\_'
 
-    - script: |
-        choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
-        choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
-        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
-      displayName: Install prerequisites
-      workingDirectory: $(Build.StagingDirectory)
+    - ${{ if containsValue(parameters.custom_version, 'latest') }}:
+      - script: |
+          choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
+          choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
+          call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
+        displayName: Install prerequisites
+        workingDirectory: $(Build.StagingDirectory)
+
+    - ${{ if not(containsValue(parameters.custom_version, 'latest')) }}:
+      - script: |
+          choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
+          choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% --version=%CUSTOM_VERSION% -y
+          call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
+        displayName: Install prerequisites
+        workingDirectory: $(Build.StagingDirectory)
+        env:
+          CUSTOM_VERSION: ${{ parameters.custom_version }}
 
     - ${{ parameters.pre_build }}
 
