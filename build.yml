@@ -46,7 +46,7 @@ jobs:
 
     - ${{ if eq(parameters.custom_version, 'latest') }}:
       - script: |
-          choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
+          choco sources add -n=roswin -s https://aka.ms/ros/public --priority 1
           choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
           call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
         displayName: Install prerequisites
@@ -54,7 +54,7 @@ jobs:
 
     - ${{ if not(eq(parameters.custom_version, 'latest')) }}:
       - script: |
-          choco sources add -n=roswin -s https://roswin.azurewebsites.net/api/v2/ --priority 1
+          choco sources add -n=roswin -s https://aka.ms/ros/public --priority 1
           choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% --version=%CUSTOM_VERSION% -y
           call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
         displayName: Install prerequisites
