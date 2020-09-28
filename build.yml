@@ -48,7 +48,9 @@ jobs:
       - script: |
           choco sources add -n=roswin -s https://aka.ms/ros/public --priority 1
           choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% -y
-          call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
+          call "C:\opt\ros\%CI_ROSDISTRO%\x64\setup.bat"
+          rosdep update
+          rosdep install --from-paths src --ignore-src -r -y
         displayName: Install prerequisites
         workingDirectory: $(Build.StagingDirectory)
 
@@ -56,7 +58,9 @@ jobs:
       - script: |
           choco sources add -n=roswin -s https://aka.ms/ros/public --priority 1
           choco upgrade ros-%CI_ROSDISTRO%-%CI_METAPACKAGE% --version=%CUSTOM_VERSION% -y
-          call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" rosdep install --from-paths src --ignore-src -r -y
+          call "C:\opt\ros\%CI_ROSDISTRO%\x64\setup.bat"
+          rosdep update
+          rosdep install --from-paths src --ignore-src -r -y
         displayName: Install prerequisites
         workingDirectory: $(Build.StagingDirectory)
         env:
@@ -72,13 +76,8 @@ jobs:
         set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
         set PATH=%PATH:C:\Strawberry\c\bin;=%
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" catkin_init_workspace
-        call "C:\opt\ros\%CI_ROSDISTRO%\x64\env.bat" catkin_make_isolated --use-ninja --install --source src ^
-        --cmake-args ^
-        -DPYTHON_VERSION=2.7 ^
-        -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
-        -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
-        -DCMAKE_VERBOSE_MAKEFILE=ON
+        call "C:\opt\ros\%CI_ROSDISTRO%\x64\setup.bat"
+        catkin_make_isolated --use-ninja --install --source src --cmake-args -DCMAKE_VERBOSE_MAKEFILE=ON
       displayName: Build repository
       workingDirectory: '$(Build.StagingDirectory)'
       
@@ -92,12 +91,7 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         call "C:\opt\ros\%CI_ROSDISTRO%\x64\setup.bat"
         call "devel_isolated\setup.bat"
-        catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% ^
-        --cmake-args ^
-        -DPYTHON_VERSION=2.7 ^
-        -DPYTHON_EXECUTABLE=C:\opt\python27amd64\python.exe ^
-        -DPYTHON_LIBRARIES=C:\opt\python27amd64\Libs ^
-        -DCMAKE_VERBOSE_MAKEFILE=ON
+        catkin_make_isolated --use-ninja --install --source src --catkin-make-args %CUSTOM_TEST_TARGET% --cmake-args -DCMAKE_VERBOSE_MAKEFILE=ON
       env:
         CUSTOM_TEST_TARGET: ${{ parameters.custom_test_target }}
       displayName: Test repository
